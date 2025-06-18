@@ -411,7 +411,7 @@ class FactoryLayoutPlanner {
             name: this.selectedMachine.name,
             icon: this.selectedMachine.icon,
             machineType: this.selectedMachine.type,
-            allowOverlap: this.selectedMachine.type !== 'obstacle', // 障碍物默认不允许叠放
+            allowOverlap: false, // 默认不允许叠放
             type: 'machine'
         };
         
@@ -816,7 +816,7 @@ class FactoryLayoutPlanner {
             name: this.selectedMachine.name,
             icon: this.selectedMachine.icon,
             machineType: this.selectedMachine.type,
-            allowOverlap: this.selectedMachine.type !== 'obstacle',
+            allowOverlap: false,
             type: 'machine'
         };
         
@@ -912,14 +912,14 @@ class FactoryLayoutPlanner {
         this.ctx.strokeRect(x, y, width, height);
         this.ctx.restore();
 
-        // 2. 绘制设备名称（黑色，居中，实时渲染优化）
+        // 2. 绘制设备名称（黑色，右下角，实时渲染优化）
         this.ctx.save();
         this.ctx.fillStyle = '#111';
         
         const fontSize = Math.max(12, Math.min(this.scale / 2, height / 4));
         this.ctx.font = `${fontSize}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
+        this.ctx.textAlign = 'right';
+        this.ctx.textBaseline = 'bottom';
         
         // 启用字体平滑
         this.ctx.imageSmoothingEnabled = true;
@@ -931,7 +931,9 @@ class FactoryLayoutPlanner {
         this.ctx.shadowOffsetX = 1;
         this.ctx.shadowOffsetY = 1;
         
-        this.ctx.fillText(machine.name, x + width / 2, y + height / 2);
+        // 绘制文字在右下角，留出一些边距
+        const namePadding = Math.max(4, this.scale / 8);
+        this.ctx.fillText(machine.name, x + width - namePadding, y + height - namePadding);
         
         // 清除阴影
         this.ctx.shadowColor = 'transparent';
@@ -1018,10 +1020,21 @@ class FactoryLayoutPlanner {
 
     // 导出布局
     exportLayout() {
+        // 计算实际长宽
+        const actualDimensions = this.calculateActualDimensions();
+        
         const layout = {
             field: {
                 width: this.fieldWidth,
                 height: this.fieldHeight
+            },
+            actualDimensions: {
+                width: actualDimensions.width,
+                height: actualDimensions.height,
+                minX: actualDimensions.minX,
+                minY: actualDimensions.minY,
+                maxX: actualDimensions.maxX,
+                maxY: actualDimensions.maxY
             },
             machines: this.machines,
             exportTime: new Date().toISOString()
@@ -1105,9 +1118,16 @@ class FactoryLayoutPlanner {
         exportCtx.fillStyle = '#666';
         exportCtx.font = `${12 * scale}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
         exportCtx.textAlign = 'left';
-        exportCtx.fillText(`场地尺寸: ${this.fieldWidth}m × ${this.fieldHeight}m`, 10 * scale, targetHeight - 30 * scale);
+        
+        // 计算实际长宽
+        const actualDimensions = this.calculateActualDimensions();
+        
+        exportCtx.fillText(`场地尺寸: ${this.fieldWidth}m × ${this.fieldHeight}m`, 10 * scale, targetHeight - 45 * scale);
+        if (this.machines.length > 0) {
+            exportCtx.fillText(`实际占用: ${this.formatNumber(actualDimensions.width)}m × ${this.formatNumber(actualDimensions.height)}m`, 10 * scale, targetHeight - 30 * scale);
+        }
         exportCtx.fillText(`机器数量: ${this.machines.length}台`, 10 * scale, targetHeight - 15 * scale);
-        exportCtx.fillText(`导出时间: ${new Date().toLocaleString()}`, targetWidth - 200 * scale, targetHeight - 15 * scale);
+        //exportCtx.fillText(`导出时间: ${new Date().toLocaleString()}`, targetWidth - 200 * scale, targetHeight - 15 * scale);
         exportCtx.restore();
         
         // 导出图片
@@ -1206,8 +1226,8 @@ class FactoryLayoutPlanner {
         
         const fontSize = Math.max(12, Math.min(this.scale / 2, height / 4));
         ctx.font = `${fontSize}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
         
         // 启用字体平滑
         ctx.imageSmoothingEnabled = true;
@@ -1219,7 +1239,9 @@ class FactoryLayoutPlanner {
         ctx.shadowOffsetX = 1;
         ctx.shadowOffsetY = 1;
         
-        ctx.fillText(machine.name, x + width / 2, y + height / 2);
+        // 绘制文字在右下角，留出一些边距
+        const namePadding = Math.max(4, this.scale / 8);
+        ctx.fillText(machine.name, x + width - namePadding, y + height - namePadding);
         
         // 清除阴影
         ctx.shadowColor = 'transparent';
@@ -1287,6 +1309,37 @@ class FactoryLayoutPlanner {
     // 格式化数字，去掉不必要的尾随零
     formatNumber(value) {
         return parseFloat(value.toFixed(2)).toString();
+    }
+
+    // 计算实际长宽（所有机器占据的范围）
+    calculateActualDimensions() {
+        if (this.machines.length === 0) {
+            return { width: 0, height: 0, minX: 0, minY: 0, maxX: 0, maxY: 0 };
+        }
+        
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        
+        this.machines.forEach(machine => {
+            minX = Math.min(minX, machine.x);
+            minY = Math.min(minY, machine.y);
+            maxX = Math.max(maxX, machine.x + machine.width);
+            maxY = Math.max(maxY, machine.y + machine.height);
+        });
+        
+        const actualWidth = maxX - minX;
+        const actualHeight = maxY - minY;
+        
+        return {
+            width: actualWidth,
+            height: actualHeight,
+            minX: minX,
+            minY: minY,
+            maxX: maxX,
+            maxY: maxY
+        };
     }
 }
 
