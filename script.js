@@ -2,8 +2,8 @@ class FactoryLayoutPlanner {
     constructor() {
         this.canvas = document.getElementById('layoutCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.fieldWidth = 20; // 米
-        this.fieldHeight = 15; // 米
+        this.fieldWidth = 35; // 米
+        this.fieldHeight = 35; // 米
         this.scale = 30; // 像素/米
         this.machines = [];
         this.selectedMachine = null;
@@ -22,6 +22,13 @@ class FactoryLayoutPlanner {
         // 防抖更新相关变量
         this.updateTimer = null;
         this.updateDelay = 100; // 防抖延迟（毫秒）
+        
+        // 自定义机器名字
+        this.customMachineName = '';
+        
+        // 实时渲染优化
+        this.lastRenderTime = 0;
+        this.renderInterval = 16; // 约60fps
         
         this.init();
     }
@@ -58,11 +65,25 @@ class FactoryLayoutPlanner {
             this.exportLayout();
         });
 
+        // 导出图片
+        document.getElementById('exportImage').addEventListener('click', () => {
+            this.exportImage();
+        });
+
         // 机器选择
         document.querySelectorAll('.machine-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 this.selectMachine(e.currentTarget);
             });
+        });
+
+        // 自定义机器名字输入
+        document.getElementById('customMachineName').addEventListener('input', (e) => {
+            this.customMachineName = e.target.value.trim();
+            // 如果当前有选中的机器，实时更新显示
+            if (this.selectedMachine) {
+                this.selectedMachine.name = this.customMachineName || this.getDefaultMachineName(this.selectedMachine.type);
+            }
         });
 
         // 画布事件 - 鼠标事件
@@ -98,9 +119,31 @@ class FactoryLayoutPlanner {
         });
     }
 
+    // 获取默认机器名字
+    getDefaultMachineName(machineType) {
+        switch(machineType) {
+            case 'obstacle':
+                return '障碍物';
+            case 'cnc':
+                return '旋切机';
+            case 'robot':
+                return '上料机';
+            case 'conveyor':
+                return '出渣机';
+            case 'press':
+                return '传送带';
+            case 'furnace':
+                return '找圆机';
+            case 'storage':
+                return '接板机';
+            default:
+                return '未知机器';
+        }
+    }
+
     // 处理键盘事件
     handleKeyDown(e) {
-        if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (e.key === '\\' || e.key === 'Backslash') {
             if (this.selectedMachineItem) {
                 this.deleteMachine(this.selectedMachineItem.id);
                 this.selectedMachineItem = null;
@@ -387,8 +430,13 @@ class FactoryLayoutPlanner {
             item.className = 'machine-item';
             item.innerHTML = `
                 <div>
-                    <div>${machine.name} ${machine.id}</div>
-                    <div style="font-size: 0.7rem; color: #6c757d;">
+                    <div>
+                        <input type="text" id="name_${machine.id}" value="${machine.name}" 
+                               style="width: 120px; margin-right: 5px; font-size: 0.9rem;"
+                               placeholder="机器名称">
+                        <span style="color: #6c757d; font-size: 0.8rem;">ID: ${machine.id}</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #6c757d; margin-top: 5px;">
                         宽: <input type="number" id="width_${machine.id}" value="${machine.width.toFixed(2)}" min="0.01" max="20" step="0.01">
                         高: <input type="number" id="height_${machine.id}" value="${machine.height.toFixed(2)}" min="0.01" max="20" step="0.01">
                     </div>
@@ -405,9 +453,16 @@ class FactoryLayoutPlanner {
             list.appendChild(item);
             
             // 添加输入事件监听器
+            const nameInput = document.getElementById(`name_${machine.id}`);
             const widthInput = document.getElementById(`width_${machine.id}`);
             const heightInput = document.getElementById(`height_${machine.id}`);
             const overlapInput = document.getElementById(`overlap_${machine.id}`);
+            
+            // 机器名字编辑
+            nameInput.addEventListener('input', (e) => {
+                machine.name = e.target.value.trim() || this.getDefaultMachineName(machine.machineType);
+                this.quickRender();
+            });
             
             widthInput.addEventListener('input', (e) => {
                 this.updateItemSize('machine', machine.id, 'width', e.target.value);
@@ -575,27 +630,27 @@ class FactoryLayoutPlanner {
                 icon = '🚧';
                 break;
             case 'cnc':
-                name = 'CNC机床';
+                name = '旋切机';
                 icon = '🖥️';
                 break;
             case 'robot':
-                name = '工业机器人';
+                name = '上料机';
                 icon = '🤖';
                 break;
             case 'conveyor':
-                name = '传送带';
+                name = '出渣机';
                 icon = '📦';
                 break;
             case 'press':
-                name = '冲压机';
+                name = '传送带';
                 icon = '⚡';
                 break;
             case 'furnace':
-                name = '热处理炉';
+                name = '找圆机';
                 icon = '🔥';
                 break;
             case 'storage':
-                name = '仓储区';
+                name = '接板机';
                 icon = '📦';
                 break;
             default:
@@ -603,15 +658,23 @@ class FactoryLayoutPlanner {
                 icon = '⚙️';
         }
         
+        // 使用自定义名字或默认名字
+        const finalName = this.customMachineName || name;
+        
         this.selectedMachine = {
             type: machineType,
-            name: name,
+            name: finalName,
             icon: icon,
             width: width,
             height: height
         };
         
         this.selectedMachineItem = element;
+        
+        // 清空自定义名字输入框，让用户重新输入
+        this.customMachineName = '';
+        document.getElementById('customMachineName').value = '';
+        document.getElementById('customMachineName').placeholder = `输入${name}名称`;
     }
 
     // 检查碰撞
@@ -760,6 +823,10 @@ class FactoryLayoutPlanner {
         this.machines.push(machine);
         this.updateMachinesList();
         this.render();
+        
+        // 清空自定义名字输入框
+        this.customMachineName = '';
+        document.getElementById('customMachineName').value = '';
     }
 
     // 获取指定位置的机器
@@ -780,6 +847,13 @@ class FactoryLayoutPlanner {
 
     // 渲染所有元素
     render() {
+        // 实时渲染优化：限制渲染频率
+        const now = performance.now();
+        if (now - this.lastRenderTime < this.renderInterval) {
+            return;
+        }
+        this.lastRenderTime = now;
+        
         this.drawField();
         this.drawAllItems();
     }
@@ -794,6 +868,13 @@ class FactoryLayoutPlanner {
 
     // 快速渲染（只重绘设备，不重绘场地）
     quickRender() {
+        // 实时渲染优化：限制渲染频率
+        const now = performance.now();
+        if (now - this.lastRenderTime < this.renderInterval) {
+            return;
+        }
+        this.lastRenderTime = now;
+        
         // 清除设备区域
         const canvasWidth = this.fieldWidth * this.scale;
         const canvasHeight = this.fieldHeight * this.scale;
@@ -831,13 +912,33 @@ class FactoryLayoutPlanner {
         this.ctx.strokeRect(x, y, width, height);
         this.ctx.restore();
 
-        // 2. 绘制设备名称（黑色，居中）
+        // 2. 绘制设备名称（黑色，居中，实时渲染优化）
         this.ctx.save();
         this.ctx.fillStyle = '#111';
-        this.ctx.font = `${Math.max(16, this.scale / 1.5)}px sans-serif`;
+        
+        const fontSize = Math.max(12, Math.min(this.scale / 2, height / 4));
+        this.ctx.font = `${fontSize}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
+        
+        // 启用字体平滑
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        
+        // 绘制文字阴影
+        this.ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.shadowBlur = 2;
+        this.ctx.shadowOffsetX = 1;
+        this.ctx.shadowOffsetY = 1;
+        
         this.ctx.fillText(machine.name, x + width / 2, y + height / 2);
+        
+        // 清除阴影
+        this.ctx.shadowColor = 'transparent';
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        
         this.ctx.restore();
 
         // 3. 绘制尺寸标注（红色细线+红色字体，在框内显示）
@@ -845,9 +946,16 @@ class FactoryLayoutPlanner {
         this.ctx.strokeStyle = '#d32f2f';
         this.ctx.fillStyle = '#d32f2f';
         this.ctx.lineWidth = 1;
-        this.ctx.font = `${Math.max(10, this.scale / 4)}px sans-serif`;
+        
+        // 计算尺寸标注字体大小
+        const dimensionFontSize = Math.max(10, Math.min(this.scale / 4, height / 6));
+        this.ctx.font = `${dimensionFontSize}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
+        
+        // 启用字体平滑
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
         
         // 只在框内显示一个长边和一个宽边的尺寸
         const padding = Math.max(8, this.scale / 8); // 内边距
@@ -857,18 +965,36 @@ class FactoryLayoutPlanner {
         this.ctx.moveTo(x + padding, y + padding);
         this.ctx.lineTo(x + width - padding, y + padding);
         this.ctx.stroke();
-        this.ctx.fillText(`${machine.width.toFixed(2)}m`, x + width / 2, y + padding + 8);
+        
+        // 绘制尺寸文字
+        this.ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.shadowBlur = 1;
+        this.ctx.shadowOffsetX = 0.5;
+        this.ctx.shadowOffsetY = 0.5;
+        this.ctx.fillText(this.formatNumber(machine.width), x + width / 2, y + padding + dimensionFontSize / 2);
         
         // 左边尺寸线（在框内）
         this.ctx.beginPath();
         this.ctx.moveTo(x + padding, y + padding);
         this.ctx.lineTo(x + padding, y + height - padding);
         this.ctx.stroke();
+        
+        // 绘制左边尺寸文字（旋转90度）
         this.ctx.save();
-        this.ctx.translate(x + padding + 8, y + height / 2);
+        this.ctx.translate(x + padding + dimensionFontSize / 2, y + height / 2);
         this.ctx.rotate(-Math.PI / 2);
-        this.ctx.fillText(`${machine.height.toFixed(2)}m`, 0, 0);
+        this.ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.shadowBlur = 1;
+        this.ctx.shadowOffsetX = 0.5;
+        this.ctx.shadowOffsetY = 0.5;
+        this.ctx.fillText(this.formatNumber(machine.height), 0, 0);
         this.ctx.restore();
+        
+        // 清除阴影
+        this.ctx.shadowColor = 'transparent';
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
         
         this.ctx.restore();
     }
@@ -908,6 +1034,259 @@ class FactoryLayoutPlanner {
         link.href = URL.createObjectURL(dataBlob);
         link.download = `工厂布局_${new Date().toLocaleDateString()}.json`;
         link.click();
+    }
+
+    // 导出图片
+    exportImage() {
+        // 创建临时canvas用于导出
+        const exportCanvas = document.createElement('canvas');
+        const exportCtx = exportCanvas.getContext('2d');
+        
+        // 计算动态分辨率：场地长度*50 × 场地宽度*50 + 边距
+        const targetWidth = this.fieldWidth * 70 + 600;
+        const targetHeight = this.fieldHeight * 70 + 600;
+        
+        // 设置canvas尺寸为动态分辨率
+        exportCanvas.width = targetWidth;
+        exportCanvas.height = targetHeight;
+        
+        // 计算缩放比例，保持原有的显示比例
+        const originalWidth = this.fieldWidth * this.scale;
+        const originalHeight = this.fieldHeight * this.scale;
+        const scaleX = (targetWidth-600) / originalWidth; // 减去边距
+        const scaleY = (targetHeight-600) / originalHeight; // 减去边距
+        const scale = Math.min(scaleX, scaleY); // 使用较小的缩放比例保持比例
+        
+        // 计算居中偏移，确保内容在边距内居中显示
+        const contentWidth = originalWidth * scale;
+        const contentHeight = originalHeight * scale;
+        const offsetX = (targetWidth - contentWidth) / 2*0;
+        const offsetY = (targetHeight - contentHeight) / 2*0;
+        
+        // 设置白色背景
+        exportCtx.fillStyle = '#ffffff';
+        exportCtx.fillRect(0, 0, targetWidth, targetHeight);
+        
+        // 应用缩放和偏移
+        exportCtx.save();
+        exportCtx.translate(offsetX, offsetY);
+        exportCtx.scale(scale, scale);
+        
+        // 绘制场地边框
+        exportCtx.save();
+        exportCtx.strokeStyle = '#333';
+        exportCtx.lineWidth = 2;
+        exportCtx.strokeRect(40, 40, this.fieldWidth * this.scale, this.fieldHeight * this.scale);
+        exportCtx.restore();
+        
+        // 绘制网格
+        this.drawGridOnContext(exportCtx, 40);
+        
+        // 绘制场地尺寸标注
+        this.drawFieldDimensionsOnContext(exportCtx, 40);
+        
+        // 绘制所有机器（不包含选中状态）
+        this.machines.forEach(machine => {
+            this.drawMachineOnContext(exportCtx, machine, 40, false);
+        });
+        
+        exportCtx.restore();
+        
+        // 绘制标题（在缩放后的坐标系中）
+        exportCtx.save();
+        exportCtx.fillStyle = '#333';
+        exportCtx.font = `bold ${24 * scale}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
+        exportCtx.textAlign = 'center';
+        exportCtx.fillText('工厂机器布局图', targetWidth / 2, 20 * scale);
+        exportCtx.restore();
+        
+        // 绘制导出信息（在缩放后的坐标系中）
+        exportCtx.save();
+        exportCtx.fillStyle = '#666';
+        exportCtx.font = `${12 * scale}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
+        exportCtx.textAlign = 'left';
+        exportCtx.fillText(`场地尺寸: ${this.fieldWidth}m × ${this.fieldHeight}m`, 10 * scale, targetHeight - 30 * scale);
+        exportCtx.fillText(`机器数量: ${this.machines.length}台`, 10 * scale, targetHeight - 15 * scale);
+        exportCtx.fillText(`导出时间: ${new Date().toLocaleString()}`, targetWidth - 200 * scale, targetHeight - 15 * scale);
+        exportCtx.restore();
+        
+        // 导出图片
+        try {
+            const dataURL = exportCanvas.toDataURL('image/png', 1.0);
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = `工厂布局图_${this.fieldWidth}x${this.fieldHeight}_${new Date().toLocaleDateString()}.png`;
+            link.click();
+        } catch (error) {
+            alert('导出图片失败，请重试');
+            console.error('导出图片错误:', error);
+        }
+    }
+    
+    // 在指定context上绘制网格
+    drawGridOnContext(ctx, margin) {
+        ctx.save();
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.lineWidth = 1;
+        
+        // 绘制垂直网格线
+        for (let x = 0; x <= this.fieldWidth; x++) {
+            const pixelX = margin + x * this.scale;
+            ctx.beginPath();
+            ctx.moveTo(pixelX, margin);
+            ctx.lineTo(pixelX, margin + this.fieldHeight * this.scale);
+            ctx.stroke();
+        }
+        
+        // 绘制水平网格线
+        for (let y = 0; y <= this.fieldHeight; y++) {
+            const pixelY = margin + y * this.scale;
+            ctx.beginPath();
+            ctx.moveTo(margin, pixelY);
+            ctx.lineTo(margin + this.fieldWidth * this.scale, pixelY);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+    
+    // 在指定context上绘制场地尺寸标注
+    drawFieldDimensionsOnContext(ctx, margin) {
+        ctx.save();
+        ctx.fillStyle = '#333';
+        ctx.font = `${Math.max(12, this.scale / 3)}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // 绘制宽度标注
+        const centerX = margin + (this.fieldWidth * this.scale) / 2;
+        const centerY = margin + this.fieldHeight * this.scale + 20;
+        ctx.fillText(this.formatNumber(this.fieldWidth), centerX, centerY);
+        
+        // 绘制高度标注
+        const centerY2 = margin + (this.fieldHeight * this.scale) / 2;
+        const centerX2 = margin + this.fieldWidth * this.scale + 20;
+        ctx.save();
+        ctx.translate(centerX2, centerY2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(this.formatNumber(this.fieldHeight), 0, 0);
+        ctx.restore();
+        
+        ctx.restore();
+    }
+    
+    // 在指定context上绘制机器（用于导出）
+    drawMachineOnContext(ctx, machine, margin, showSelection = false) {
+        const x = margin + machine.x * this.scale;
+        const y = margin + machine.y * this.scale;
+        const width = machine.width * this.scale;
+        const height = machine.height * this.scale;
+
+        // 如果设备被选中且需要显示选中状态，绘制高亮边框
+        if (showSelection && this.selectedMachineItem && this.selectedMachineItem.id === machine.id) {
+            ctx.save();
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(x - 2, y - 2, width + 4, height + 4);
+            ctx.restore();
+        }
+
+        // 绘制设备矩形（黑色细线）
+        ctx.save();
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([]);
+        ctx.strokeRect(x, y, width, height);
+        ctx.restore();
+
+        // 绘制设备名称
+        ctx.save();
+        ctx.fillStyle = '#111';
+        
+        const fontSize = Math.max(12, Math.min(this.scale / 2, height / 4));
+        ctx.font = `${fontSize}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // 启用字体平滑
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // 绘制文字阴影
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 2;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
+        
+        ctx.fillText(machine.name, x + width / 2, y + height / 2);
+        
+        // 清除阴影
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.restore();
+
+        // 绘制尺寸标注
+        ctx.save();
+        ctx.strokeStyle = '#d32f2f';
+        ctx.fillStyle = '#d32f2f';
+        ctx.lineWidth = 1;
+        
+        const dimensionFontSize = Math.max(10, Math.min(this.scale / 4, height / 6));
+        ctx.font = `${dimensionFontSize}px "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        const padding = Math.max(8, this.scale / 8);
+        
+        // 上边尺寸线
+        ctx.beginPath();
+        ctx.moveTo(x + padding, y + padding);
+        ctx.lineTo(x + width - padding, y + padding);
+        ctx.stroke();
+        
+        // 绘制尺寸文字
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 1;
+        ctx.shadowOffsetX = 0.5;
+        ctx.shadowOffsetY = 0.5;
+        ctx.fillText(this.formatNumber(machine.width), x + width / 2, y + padding + dimensionFontSize / 2);
+        
+        // 左边尺寸线
+        ctx.beginPath();
+        ctx.moveTo(x + padding, y + padding);
+        ctx.lineTo(x + padding, y + height - padding);
+        ctx.stroke();
+        
+        // 绘制左边尺寸文字
+        ctx.save();
+        ctx.translate(x + padding + dimensionFontSize / 2, y + height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 1;
+        ctx.shadowOffsetX = 0.5;
+        ctx.shadowOffsetY = 0.5;
+        ctx.fillText(this.formatNumber(machine.height), 0, 0);
+        ctx.restore();
+        
+        // 清除阴影
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.restore();
+    }
+
+    // 格式化数字，去掉不必要的尾随零
+    formatNumber(value) {
+        return parseFloat(value.toFixed(2)).toString();
     }
 }
 

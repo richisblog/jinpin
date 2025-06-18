@@ -104,6 +104,17 @@ header h1 {
     border-color: #667eea;
 }
 
+/* 自定义机器名字输入框样式 */
+.input-group input[type="text"] {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.input-group input[type="text"]:focus {
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+    transform: translateY(-1px);
+}
+
 .btn {
     background: #667eea;
     color: white;
@@ -138,6 +149,14 @@ header h1 {
 
 .btn-success:hover {
     background: #218838;
+}
+
+.btn-primary {
+    background: #007bff;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
 }
 
 /* 全局设置样式 */
@@ -239,11 +258,27 @@ header h1 {
 
 /* 机器列表样式 */
 .machines-list {
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #ddd;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 10px;
+    background: white;
+}
+
+/* 机器列表中名字输入框样式 */
+.machines-list .machine-item input[type="text"] {
+    border: 1px solid #ced4da;
     border-radius: 4px;
-    margin-top: 10px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.machines-list .machine-item input[type="text"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    outline: none;
 }
 
 .machine-item {
