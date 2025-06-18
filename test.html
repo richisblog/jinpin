@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时更新测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .result {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>实时更新功能测试</h1>
+        
+        <div class="test-section">
+            <h3>测试说明</h3>
+            <p>这个页面用于测试工厂布局规划工具的实时更新功能：</p>
+            <ul>
+                <li>在机器列表中修改宽度和高度</li>
+                <li>观察画布中的设备尺寸是否实时更新</li>
+                <li>检查红色标注数字是否同步变化</li>
+                <li>验证碰撞检测是否正常工作</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h3>测试步骤</h3>
+            <ol>
+                <li>点击"打开主应用"按钮</li>
+                <li>选择一种机器类型（如CNC机床）</li>
+                <li>点击"添加机器"或直接在画布上点击放置机器</li>
+                <li>在左侧机器列表中找到刚添加的机器</li>
+                <li>修改宽度或高度输入框的值</li>
+                <li>观察画布中设备的尺寸和标注是否实时更新</li>
+                <li>尝试输入无效值（如负数或超过20的值）</li>
+                <li>测试碰撞检测功能</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h3>预期结果</h3>
+            <ul>
+                <li>✅ 输入有效值时，设备尺寸和标注应实时更新</li>
+                <li>✅ 输入无效值时，应自动恢复为有效值</li>
+                <li>✅ 尺寸变化导致碰撞时，应恢复原值并提示</li>
+                <li>✅ 红色标注数字应与输入框的值同步</li>
+                <li>✅ 更新过程中不应出现卡顿或闪烁</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h3>操作按钮</h3>
+            <button class="btn" onclick="window.open('index.html', '_blank')">打开主应用</button>
+            <button class="btn" onclick="window.open('demo.html', '_blank')">查看功能演示</button>
+        </div>
+    </div>
+</body>
+</html> 

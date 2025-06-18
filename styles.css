@@ -1,0 +1,638 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+}
+
+.usage-tips {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.usage-tips span {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* 控制面板样式 */
+.control-panel {
+    width: 320px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-right: 1px solid #e9ecef;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.panel-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.panel-section:last-child {
+    border-bottom: none;
+}
+
+.panel-section h3 {
+    color: #495057;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.btn:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-danger {
+    background: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.btn-success {
+    background: #28a745;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+/* 全局设置样式 */
+.global-settings {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.global-settings label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #856404;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.global-settings input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.overlap-rules {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.overlap-rules small {
+    display: block;
+    margin-bottom: 2px;
+    line-height: 1.3;
+}
+
+/* 提示信息样式 */
+.obstacle-tips, .machine-tips {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 0.8rem;
+    color: #1976d2;
+}
+
+.obstacle-tips small, .machine-tips small {
+    display: block;
+    margin-bottom: 3px;
+    line-height: 1.4;
+}
+
+/* 机器选择网格 */
+.machines-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.machine-item {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.machine-item:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.machine-item.selected {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.machine-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.machine-item span {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* 机器列表样式 */
+.machines-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.machine-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    transition: background-color 0.2s;
+}
+
+.machine-item:hover {
+    background: #e9ecef;
+}
+
+.machine-item:last-child {
+    border-bottom: none;
+}
+
+.machine-item input[type="number"] {
+    width: 60px;
+    margin: 0 5px;
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.machine-item .delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.machine-item .delete-btn:hover {
+    background: #c82333;
+}
+
+.machine-item .overlap-toggle {
+    margin-left: 10px;
+    font-size: 0.8rem;
+}
+
+.machine-item .overlap-toggle input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* 绘图区域 */
+.drawing-area {
+    flex: 1;
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-container {
+    position: relative;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#layoutCanvas {
+    display: block;
+    background: #fafafa;
+    cursor: crosshair;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+/* 标尺样式 */
+.ruler-x, .ruler-y {
+    position: absolute;
+    background: #e9ecef;
+    color: #6c757d;
+    font-size: 0.7rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ruler-x {
+    top: 0;
+    left: 40px;
+    right: 0;
+    height: 40px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.ruler-y {
+    top: 40px;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    border-right: 1px solid #dee2e6;
+    flex-direction: column;
+}
+
+.ruler-mark {
+    position: absolute;
+    background: #6c757d;
+}
+
+.ruler-x .ruler-mark {
+    width: 1px;
+    height: 8px;
+    bottom: 0;
+}
+
+.ruler-y .ruler-mark {
+    width: 8px;
+    height: 1px;
+    right: 0;
+}
+
+.ruler-label {
+    position: absolute;
+    font-size: 0.6rem;
+    color: #6c757d;
+}
+
+.ruler-x .ruler-label {
+    bottom: 10px;
+    transform: translateX(-50%);
+}
+
+.ruler-y .ruler-label {
+    right: 10px;
+    transform: translateY(-50%);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .control-panel {
+        width: 100%;
+        max-height: none;
+    }
+    
+    .machines-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .usage-tips {
+        padding: 8px 15px;
+    }
+    
+    .usage-tips span {
+        font-size: 0.8rem;
+    }
+    
+    .machines-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    #layoutCanvas {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* 移动设备优化样式 */
+.mobile-tip {
+    display: none;
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+/* 移动设备样式 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .usage-tips {
+        padding: 8px 15px;
+        border-radius: 20px;
+    }
+
+    .usage-tips span {
+        font-size: 0.8rem;
+    }
+
+    .mobile-tip {
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .main-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .control-panel {
+        width: 100%;
+        max-height: none;
+        order: 2;
+    }
+
+    .drawing-area {
+        order: 1;
+        height: 50vh;
+        min-height: 300px;
+    }
+
+    .canvas-container {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #layoutCanvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+    }
+
+    .machines-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .machine-item {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+
+    .machine-icon {
+        font-size: 1.5rem;
+    }
+
+    .panel-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+
+    .panel-section h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        padding: 12px 16px;
+        font-size: 1rem;
+        margin-bottom: 8px;
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .input-group input {
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .machines-list .machine-item {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    .machines-list .machine-item input[type="number"] {
+        padding: 8px;
+        font-size: 0.9rem;
+        width: 60px;
+    }
+
+    .machines-list .machine-item .delete-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    /* 触摸优化 */
+    .machine-item, .btn, input, select {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    /* 防止双击缩放 */
+    * {
+        touch-action: manipulation;
+    }
+
+    /* 优化触摸目标大小 */
+    .machine-item {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .btn {
+        min-height: 44px;
+    }
+
+    input[type="number"], input[type="text"] {
+        min-height: 44px;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .usage-tips {
+        padding: 6px 12px;
+    }
+
+    .usage-tips span {
+        font-size: 0.75rem;
+    }
+
+    .machines-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .control-panel {
+        padding: 15px;
+    }
+
+    .drawing-area {
+        height: 40vh;
+        min-height: 250px;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+    .main-content {
+        flex-direction: row;
+        height: 85vh;
+    }
+
+    .control-panel {
+        width: 280px;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    .drawing-area {
+        flex: 1;
+        height: 85vh;
+    }
+}
+
+/* 触摸反馈效果 */
+@media (hover: none) and (pointer: coarse) {
+    .machine-item:active,
+    .btn:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
+
+    .machine-item.selected {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+    }
+} 

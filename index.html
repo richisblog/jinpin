@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>工厂机器布局规划工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>工厂机器布局规划工具</h1>
+            <div class="usage-tips">
+                <span>💡 提示：拖拽设备可移动位置，按Delete键删除选中的设备，障碍物始终不可叠放</span>
+                <span class="mobile-tip">📱 移动设备：触摸拖拽设备，长按删除</span>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3>场地设置</h3>
+                    <div class="input-group">
+                        <label for="fieldWidth">场地宽度 (米):</label>
+                        <input type="number" id="fieldWidth" value="20" min="1" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="fieldHeight">场地高度 (米):</label>
+                        <input type="number" id="fieldHeight" value="15" min="1" max="100">
+                    </div>
+                    <button id="updateField" class="btn">更新场地</button>
+                </div>
+
+                <div class="panel-section">
+                    <h3>机器管理</h3>
+                    <div class="machine-tips">
+                        <small>• 先选择机器类型，再点击"添加机器"</small><br>
+                        <small>• 拖拽机器可移动位置</small><br>
+                        <small>• 选中机器后按Delete键删除</small><br>
+                        <small>• 可单独设置每台机器是否允许叠放</small><br>
+                        <small>• 障碍物始终不可叠放</small>
+                        <small class="mobile-tip">📱 移动设备：触摸拖拽，长按删除</small>
+                    </div>
+                    <button id="addMachine" class="btn">添加机器</button>
+                    <div id="machinesList" class="machines-list">
+                        <!-- 机器列表将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>机器选择</h3>
+                    <div class="machine-tips">
+                        <small>• 点击选择机器类型</small><br>
+                        <small>• 在场地内点击放置机器</small><br>
+                        <small>• 拖拽机器可调整位置</small>
+                    </div>
+                    <div class="machines-grid">
+                        <div class="machine-item" data-machine="obstacle" data-width="3" data-height="2">
+                            <div class="machine-icon">🚧</div>
+                            <span>障碍物</span>
+                        </div>
+                        <div class="machine-item" data-machine="cnc" data-width="3" data-height="2">
+                            <div class="machine-icon">🖥️</div>
+                            <span>CNC机床</span>
+                        </div>
+                        <div class="machine-item" data-machine="robot" data-width="2" data-height="2">
+                            <div class="machine-icon">🤖</div>
+                            <span>工业机器人</span>
+                        </div>
+                        <div class="machine-item" data-machine="conveyor" data-width="5" data-height="1">
+                            <div class="machine-icon">📦</div>
+                            <span>传送带</span>
+                        </div>
+                        <div class="machine-item" data-machine="press" data-width="2" data-height="3">
+                            <div class="machine-icon">⚡</div>
+                            <span>冲压机</span>
+                        </div>
+                        <div class="machine-item" data-machine="furnace" data-width="4" data-height="3">
+                            <div class="machine-icon">🔥</div>
+                            <span>热处理炉</span>
+                        </div>
+                        <div class="machine-item" data-machine="storage" data-width="3" data-height="4">
+                            <div class="machine-icon">📦</div>
+                            <span>仓储区</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>操作</h3>
+                    <button id="clearAll" class="btn btn-danger">清空所有</button>
+                    <button id="exportLayout" class="btn btn-success">导出布局</button>
+                </div>
+            </div>
+
+            <!-- 右侧绘图区域 -->
+            <div class="drawing-area">
+                <div class="canvas-container">
+                    <canvas id="layoutCanvas" width="3000" height="4000" style="max-width:100%;max-height:100%;width:100%;height:auto;touch-action:none;"></canvas>
+                    <!-- 右侧绘图区域<div class="ruler-x" id="rulerX"></div> -->
+                    <!-- 右侧绘图区域 <div class="ruler-y" id="rulerY"></div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

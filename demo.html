@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>工厂布局规划工具 - 功能演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .demo-header {
+            background: #667eea;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .demo-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .demo-content {
+            padding: 40px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .feature-card p {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 5px 0;
+            color: #495057;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .demo-buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .mobile-demo {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .mobile-demo h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        
+        .mobile-tips {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .mobile-tip {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #1976d2;
+        }
+        
+        .mobile-tip strong {
+            color: #1976d2;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-content {
+                padding: 20px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🏭 工厂布局规划工具</h1>
+            <p>现代化的工厂机器布局规划工具，支持拖拽操作、实时尺寸调整和移动设备优化</p>
+        </div>
+        
+        <div class="demo-content">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🎯 核心功能</h3>
+                    <p>专业的工厂布局设计工具，提供直观的可视化界面</p>
+                    <ul class="feature-list">
+                        <li>可视化2D画布界面</li>
+                        <li>支持拖拽放置机器</li>
+                        <li>多种机器类型选择</li>
+                        <li>实时尺寸调整</li>
+                        <li>智能碰撞检测</li>
+                        <li>布局导出功能</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📱 移动设备优化</h3>
+                    <p>专为移动设备优化的触摸操作体验</p>
+                    <ul class="feature-list">
+                        <li>触摸拖拽操作</li>
+                        <li>长按删除功能</li>
+                        <li>响应式设计</li>
+                        <li>触摸反馈优化</li>
+                        <li>横屏模式支持</li>
+                        <li>振动反馈（支持设备）</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🎨 视觉优化</h3>
+                    <p>专业的工程制图风格显示</p>
+                    <ul class="feature-list">
+                        <li>工程图风格显示</li>
+                        <li>内嵌尺寸标注</li>
+                        <li>简化标注设计</li>
+                        <li>实时尺寸更新</li>
+                        <li>选中设备高亮</li>
+                        <li>专业配色方案</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>⚙️ 技术特性</h3>
+                    <p>现代化的Web技术实现</p>
+                    <ul class="feature-list">
+                        <li>纯前端实现</li>
+                        <li>Canvas高性能绘图</li>
+                        <li>完整的触摸事件支持</li>
+                        <li>响应式CSS设计</li>
+                        <li>实时渲染机制</li>
+                        <li>跨浏览器兼容</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mobile-demo">
+                <h3>📱 移动设备操作指南</h3>
+                <div class="mobile-tips">
+                    <div class="mobile-tip">
+                        <strong>选择机器</strong>
+                        点击机器类型图标选择要添加的机器
+                    </div>
+                    <div class="mobile-tip">
+                        <strong>放置机器</strong>
+                        点击"添加机器"或直接在画布上点击放置
+                    </div>
+                    <div class="mobile-tip">
+                        <strong>移动机器</strong>
+                        触摸拖拽机器到新位置
+                    </div>
+                    <div class="mobile-tip">
+                        <strong>删除机器</strong>
+                        长按机器显示删除确认对话框
+                    </div>
+                    <div class="mobile-tip">
+                        <strong>调整尺寸</strong>
+                        在机器列表中修改宽度和高度
+                    </div>
+                    <div class="mobile-tip">
+                        <strong>设置叠放</strong>
+                        在机器列表中设置是否允许叠放
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-buttons">
+                <a href="index.html" class="btn btn-success">🚀 开始使用</a>
+                <a href="README.md" class="btn">📖 查看文档</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
